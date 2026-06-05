@@ -254,11 +254,10 @@ def _render_skill_chips() -> None:
 
 
 def navigate_to(page: str) -> None:
-    """Switch page and rerun — đồng bộ sidebar radio (key sidebar_nav)."""
+    """Switch page and rerun (dùng session_state.page, không ghi đè widget key)."""
     if page not in MENU_ITEMS:
         return
     st.session_state.page = page
-    st.session_state.sidebar_nav = page
     st.rerun()
 
 
@@ -280,7 +279,10 @@ def render_sidebar() -> str:
         "About": "ℹ️ About",
     }
     current = st.session_state.get("page", "Home")
-    index = MENU_ITEMS.index(current) if current in MENU_ITEMS else 0
+    if current not in MENU_ITEMS:
+        current = "Home"
+        st.session_state.page = current
+    index = MENU_ITEMS.index(current)
 
     page = st.radio(
         "Menu",
@@ -288,9 +290,9 @@ def render_sidebar() -> str:
         index=index,
         format_func=lambda p: icons.get(p, p),
         label_visibility="collapsed",
-        key="sidebar_nav",
     )
-    st.session_state.page = page
+    if page != st.session_state.get("page"):
+        st.session_state.page = page
 
     if not has_api_key():
         st.caption("⚠️ Chưa có API key — chế độ demo")
