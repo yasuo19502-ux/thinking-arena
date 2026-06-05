@@ -12,6 +12,14 @@ if str(_REPO_ROOT) not in sys.path:
 
 import streamlit as st
 
+# Phải gọi trước mọi lệnh Streamlit khác (kể cả import module dùng st.*).
+st.set_page_config(
+    page_title="Thinking Arena",
+    page_icon="🏟️",
+    layout="centered",
+    initial_sidebar_state="expanded",
+)
+
 from src.ui import (
     inject_custom_css,
     render_about,
@@ -21,13 +29,6 @@ from src.ui import (
     render_sidebar,
 )
 from src.utils import init_session_state
-
-st.set_page_config(
-    page_title="Thinking Arena",
-    page_icon="🏟️",
-    layout="centered",
-    initial_sidebar_state="expanded",
-)
 
 PAGES = {
     "Home": render_home,

@@ -7,7 +7,8 @@ font = "sans serif"
 
 [server]
 headless = true
-port = 8502
+# Không đặt port ở đây — Streamlit Cloud tự gán cổng.
+# Chạy local (tránh xung đột 8501): streamlit run app.py --server.port 8502
 
 [browser]
 gatherUsageStats = false

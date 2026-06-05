@@ -1,6 +1,3 @@
-# Thinking Arena — chạy: pip install -r requirements.txt
-# Không cần sửa file này trừ khi bạn biết mình đang làm gì.
-
-streamlit>=1.32.0    # Giao diện web
-pydantic>=2.6.0      # Kiểm tra JSON từ AI
-google-genai>=1.0.0  # Google Gemini API
+streamlit>=1.35.0
+pydantic>=2.6.0
+google-genai>=1.0.0
