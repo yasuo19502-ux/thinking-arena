@@ -68,10 +68,19 @@ HOME_BENEFITS: list[tuple[str, str, str]] = [
 
 def inject_custom_css() -> None:
     """Inject app-wide CSS once per run."""
-    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+    st.html(CUSTOM_CSS.strip())
 
 
 # ── UI helpers ────────────────────────────────────────────
+
+
+def render_html(fragment: str) -> None:
+    """
+    Render block HTML qua st.html.
+
+    Tránh st.markdown hiển thị raw HTML khi chuỗi có thụt dòng (CommonMark coi là code block).
+    """
+    st.html(fragment.strip())
 
 
 def render_header(
@@ -91,27 +100,15 @@ def render_header(
             if badge
             else '<span class="ta-hero-badge">Phòng gym tư duy</span>'
         )
-        st.markdown(
-            f"""
-            <div class="ta-hero">
-                {badge_html}
-                <h1>{safe_title}</h1>
-                <p>{safe_sub}</p>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        render_html(
+            f'<div class="ta-hero">{badge_html}'
+            f"<h1>{safe_title}</h1><p>{safe_sub}</p></div>"
         )
         return
 
     sub_html = f"<p>{safe_sub}</p>" if subtitle else ""
-    st.markdown(
-        f"""
-        <div class="ta-page-header">
-            <h2>{safe_title}</h2>
-            {sub_html}
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-page-header"><h2>{safe_title}</h2>{sub_html}</div>'
     )
 
 
@@ -123,10 +120,7 @@ def render_section_title(title: str, subtitle: str | None = None) -> None:
         if subtitle
         else ""
     )
-    st.markdown(
-        f'<p class="ta-section-title">{safe_title}</p>{sub_html}',
-        unsafe_allow_html=True,
-    )
+    render_html(f'<p class="ta-section-title">{safe_title}</p>{sub_html}')
 
 
 def render_card(
@@ -140,14 +134,9 @@ def render_card(
     title_html = (
         f'<p class="ta-card-title">{html.escape(title)}</p>' if title else ""
     )
-    st.markdown(
-        f"""
-        <div class="ta-card{accent_class}">
-            {title_html}
-            <div class="ta-card-body">{body}</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-card{accent_class}">{title_html}'
+        f'<div class="ta-card-body">{body}</div></div>'
     )
 
 
@@ -166,14 +155,10 @@ def render_score_badge(
     else:
         band = "ta-score-low"
 
-    st.markdown(
-        f"""
-        <div class="ta-score-badge {band}">
-            <span class="ta-score-badge-value">{score}</span>
-            <span class="ta-score-badge-label">{html.escape(label)}</span>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-score-badge {band}">'
+        f'<span class="ta-score-badge-value">{score}</span>'
+        f'<span class="ta-score-badge-label">{html.escape(label)}</span></div>'
     )
 
 
@@ -190,25 +175,16 @@ def render_score_row(badges: list[tuple[int, str]]) -> None:
             else "ta-score-low"
         )
         parts.append(
-            f"""
-            <div class="ta-score-badge {band}">
-                <span class="ta-score-badge-value">{score}</span>
-                <span class="ta-score-badge-label">{html.escape(label)}</span>
-            </div>
-            """
+            f'<div class="ta-score-badge {band}">'
+            f'<span class="ta-score-badge-value">{score}</span>'
+            f'<span class="ta-score-badge-label">{html.escape(label)}</span></div>'
         )
-    st.markdown(
-        f'<div class="ta-score-row">{"".join(parts)}</div>',
-        unsafe_allow_html=True,
-    )
+    render_html(f'<div class="ta-score-row">{"".join(parts)}</div>')
 
 
 def render_info_box(message: str, variant: InfoVariant = "info") -> None:
     """Styled alert — info, success, warning, or neutral."""
-    st.markdown(
-        f'<div class="ta-info ta-info-{variant}">{message}</div>',
-        unsafe_allow_html=True,
-    )
+    render_html(f'<div class="ta-info ta-info-{variant}">{message}</div>')
 
 
 def _difficulty_badge_class(difficulty: str) -> str:
@@ -224,46 +200,34 @@ def _render_benefit_cards() -> None:
     cards = []
     for icon, title, desc in HOME_BENEFITS:
         cards.append(
-            f"""
-            <div class="ta-benefit-card">
-                <div class="ta-benefit-icon">{icon}</div>
-                <div>
-                    <p class="ta-benefit-title">{html.escape(title)}</p>
-                    <p class="ta-benefit-desc">{html.escape(desc)}</p>
-                </div>
-            </div>
-            """
+            f'<div class="ta-benefit-card">'
+            f'<div class="ta-benefit-icon">{icon}</div><div>'
+            f'<p class="ta-benefit-title">{html.escape(title)}</p>'
+            f'<p class="ta-benefit-desc">{html.escape(desc)}</p>'
+            f"</div></div>"
         )
-    st.markdown(f'<div class="ta-benefits">{"".join(cards)}</div>', unsafe_allow_html=True)
+    render_html(f'<div class="ta-benefits">{"".join(cards)}</div>')
 
 
 def _render_quote_card(text: str, label: str = "Câu chốt sắc bén") -> None:
-    st.markdown(
-        f"""
-        <div class="ta-quote-card">
-            <p class="ta-quote-label">{html.escape(label)}</p>
-            <p class="ta-quote-text">{html.escape(text)}</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-quote-card">'
+        f'<p class="ta-quote-label">{html.escape(label)}</p>'
+        f'<p class="ta-quote-text">{html.escape(text)}</p></div>'
     )
 
 
 def _render_insight_hero(items: list[str]) -> None:
-    st.markdown(
-        f"""
-        <div class="ta-insight-hero">
-            <p class="ta-insight-hero-title">⚠️ Vì sao người nghe dễ phớt lờ</p>
-            {_bullets_html(items)}
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-insight-hero">'
+        f'<p class="ta-insight-hero-title">⚠️ Vì sao người nghe dễ phớt lờ</p>'
+        f"{_bullets_html(items)}</div>"
     )
 
 
 def _render_copyable_script(text: str, label: str, key_suffix: str) -> None:
     """Hiển thị script dễ copy (Streamlit code block có nút copy)."""
-    st.markdown(f'<p class="ta-copy-section-label">{html.escape(label)}</p>', unsafe_allow_html=True)
+    render_html(f'<p class="ta-copy-section-label">{html.escape(label)}</p>')
     if text.strip():
         st.code(text.strip(), language=None)
     else:
@@ -275,32 +239,26 @@ def _render_steps(steps: list[tuple[int, str, str]]) -> None:
     items = []
     for num, title, desc in steps:
         items.append(
-            f"""
-            <div class="ta-step">
-                <span class="ta-step-num">{num}</span>
-                <p class="ta-step-text">
-                    <strong>{html.escape(title)}</strong><br/>
-                    {html.escape(desc)}
-                </p>
-            </div>
-            """
+            f'<div class="ta-step"><span class="ta-step-num">{num}</span>'
+            f'<p class="ta-step-text"><strong>{html.escape(title)}</strong><br/>'
+            f"{html.escape(desc)}</p></div>"
         )
-    st.markdown(
-        f'<div class="ta-steps">{"".join(items)}</div>',
-        unsafe_allow_html=True,
-    )
+    render_html(f'<div class="ta-steps">{"".join(items)}</div>')
 
 
 def _render_skill_chips() -> None:
     chips = "".join(
         f'<span class="ta-chip">{html.escape(s)}</span>' for s in SKILLS
     )
-    st.markdown(f'<div class="ta-chips">{chips}</div>', unsafe_allow_html=True)
+    render_html(f'<div class="ta-chips">{chips}</div>')
 
 
 def navigate_to(page: str) -> None:
-    """Switch page and rerun."""
+    """Switch page and rerun — đồng bộ sidebar radio (key sidebar_nav)."""
+    if page not in MENU_ITEMS:
+        return
     st.session_state.page = page
+    st.session_state.sidebar_nav = page
     st.rerun()
 
 
@@ -309,10 +267,9 @@ def navigate_to(page: str) -> None:
 
 def render_sidebar() -> str:
     """Sidebar brand + menu. Returns selected page name."""
-    st.markdown(
+    render_html(
         '<p class="ta-sidebar-brand">🏟️ Thinking Arena</p>'
-        '<p class="ta-sidebar-tagline">Luyện tư duy & giao tiếp</p>',
-        unsafe_allow_html=True,
+        '<p class="ta-sidebar-tagline">Luyện tư duy & giao tiếp</p>'
     )
     st.divider()
 
@@ -358,11 +315,10 @@ def render_home() -> None:
         badge="Luyện kỹ năng thật",
     )
 
-    st.markdown(
+    render_html(
         '<p class="ta-lead">Nhiều người nghĩ được ý trong đầu nhưng khi nói ra bị '
         "<strong>cụt</strong>, <strong>thiếu trọng tâm</strong> — người nghe dễ phớt lờ. "
-        "Thinking Arena cho bạn tình huống thật, feedback thẳng, và bài luyện ngắn.</p>",
-        unsafe_allow_html=True,
+        "Thinking Arena cho bạn tình huống thật, feedback thẳng, và bài luyện ngắn.</p>"
     )
 
     render_section_title("Bạn sẽ luyện được gì")
@@ -377,7 +333,7 @@ def render_home() -> None:
         ]
     )
 
-    st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
+    render_html("<div style='height:0.75rem'></div>")
     if st.button("Bắt đầu luyện hôm nay", type="primary", use_container_width=True):
         navigate_to("Practice")
 
@@ -527,26 +483,16 @@ def _render_scenario_card(scenario: dict[str, Any], index: int) -> None:
     conflict = html.escape(scenario.get("core_conflict", ""))
     question = html.escape(scenario.get("question", ""))
 
-    st.markdown(
-        f"""
-        <div class="ta-scenario-v2{sel_class}">
-            <div class="ta-scenario-v2-head">
-                <div class="ta-scenario-v2-top">
-                    <span class="ta-scenario-num">#{num}</span>
-                    <p class="ta-scenario-v2-title">{title}</p>
-                </div>
-                {_scenario_skill_badges_html(scenario)}
-            </div>
-            <div class="ta-scenario-v2-body">
-                <p class="ta-scenario-label">Bối cảnh</p>
-                <p>{context}</p>
-                <p class="ta-scenario-label">Mâu thuẫn</p>
-                <p>{conflict}</p>
-                <div class="ta-scenario-v2-question">{question}</div>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-scenario-v2{sel_class}">'
+        f'<div class="ta-scenario-v2-head"><div class="ta-scenario-v2-top">'
+        f'<span class="ta-scenario-num">#{num}</span>'
+        f'<p class="ta-scenario-v2-title">{title}</p></div>'
+        f"{_scenario_skill_badges_html(scenario)}</div>"
+        f'<div class="ta-scenario-v2-body">'
+        f'<p class="ta-scenario-label">Bối cảnh</p><p>{context}</p>'
+        f'<p class="ta-scenario-label">Mâu thuẫn</p><p>{conflict}</p>'
+        f'<div class="ta-scenario-v2-question">{question}</div></div></div>'
     )
     if st.button(
         "✓ Chọn tình huống này",
@@ -591,16 +537,11 @@ def render_score_badge_large(score: int, label: str = "Tổng điểm") -> None:
     else:
         color = "#dc2626"
 
-    st.markdown(
-        f"""
-        <div class="ta-score-hero-wrap">
-            <div class="ta-score-hero">
-                <span class="ta-score-hero-value" style="color:{color}">{score}</span>
-                <span class="ta-score-hero-label">{html.escape(label)}</span>
-            </div>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-score-hero-wrap"><div class="ta-score-hero">'
+        f'<span class="ta-score-hero-value" style="color:{color}">{score}</span>'
+        f'<span class="ta-score-hero-label">{html.escape(label)}</span>'
+        f"</div></div>"
     )
 
 
@@ -613,19 +554,12 @@ def _render_total_score_block(total: int) -> None:
     else:
         color = "#dc2626"
 
-    st.markdown(
-        f"""
-        <div class="ta-score-panel">
-            <div class="ta-score-hero-wrap">
-                <div class="ta-score-hero">
-                    <span class="ta-score-hero-value" style="color:{color}">{total}</span>
-                    <span class="ta-score-hero-label">Điểm tổng</span>
-                </div>
-            </div>
-            <p class="ta-score-session-text">Điểm phiên trả lời: {total}/100</p>
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-score-panel"><div class="ta-score-hero-wrap">'
+        f'<div class="ta-score-hero">'
+        f'<span class="ta-score-hero-value" style="color:{color}">{total}</span>'
+        f'<span class="ta-score-hero-label">Điểm tổng</span></div></div>'
+        f'<p class="ta-score-session-text">Điểm phiên trả lời: {total}/100</p></div>'
     )
     st.progress(min(max(total / 100, 0.0), 1.0))
 
@@ -633,16 +567,10 @@ def _render_total_score_block(total: int) -> None:
 def _render_score_breakdown_bars(scores: dict[str, Any]) -> None:
     for key, label in SCORE_CRITERIA:
         value = int(scores.get(key, 0) or 0)
-        st.markdown(
-            f"""
-            <div class="ta-criterion-row">
-                <div class="ta-criterion-head">
-                    <span class="ta-criterion-name">{html.escape(label)}</span>
-                    <span class="ta-criterion-val">{value}/100</span>
-                </div>
-            </div>
-            """,
-            unsafe_allow_html=True,
+        render_html(
+            f'<div class="ta-criterion-row"><div class="ta-criterion-head">'
+            f'<span class="ta-criterion-name">{html.escape(label)}</span>'
+            f'<span class="ta-criterion-val">{value}/100</span></div></div>'
         )
         st.progress(min(max(value / 100, 0.0), 1.0))
 
@@ -773,9 +701,8 @@ def render_feedback_section(feedback: dict[str, Any] | None = None) -> None:
 
     # 7. Nói lại tốt hơn — dễ copy
     render_section_title("Nói lại tốt hơn")
-    st.markdown(
-        '<p class="ta-copy-hint">Bấm icon copy góc phải mỗi khối để dán vào ghi chú hoặc luyện đọc to.</p>',
-        unsafe_allow_html=True,
+    render_html(
+        '<p class="ta-copy-hint">Bấm icon copy góc phải mỗi khối để dán vào ghi chú hoặc luyện đọc to.</p>'
     )
     _render_copyable_script(data.get("better_answer_10s", ""), "⏱ Bản ~10 giây", "10s")
     _render_copyable_script(data.get("better_answer_30s", ""), "⏱ Bản ~30 giây", "30s")
@@ -788,9 +715,8 @@ def render_feedback_section(feedback: dict[str, Any] | None = None) -> None:
     # 9. AI phản biện bạn
     render_section_title("AI phản biện bạn")
     counter_q = data.get("counter_question", "")
-    st.markdown(
-        f'<div class="ta-counter-box"><p style="margin:0">{html.escape(counter_q)}</p></div>',
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-counter-box"><p style="margin:0">{html.escape(counter_q)}</p></div>'
     )
     if (
         st.session_state.get("practice_step") != "counter"
@@ -900,10 +826,7 @@ def render_counter_feedback_section(
     score = int(data.get("score", 0) or 0)
     render_score_badge_large(score, "Điểm phản biện")
     st.progress(min(max(score / 100, 0.0), 1.0))
-    st.markdown(
-        f'<p class="ta-score-session-text">Điểm phản biện: {score}/100</p>',
-        unsafe_allow_html=True,
-    )
+    render_html(f'<p class="ta-score-session-text">Điểm phản biện: {score}/100</p>')
 
     strong = data.get("strong_points") or []
     weak = data.get("weak_points") or []
@@ -928,10 +851,15 @@ def _render_counter_practice_actions() -> None:
         "Xem tổng kết phiên luyện",
         type="primary",
         use_container_width=True,
+        key="btn_go_result",
     ):
         navigate_to("Result")
 
-    if st.button("Luyện tình huống mới", use_container_width=True):
+    if st.button(
+        "Luyện tình huống mới",
+        use_container_width=True,
+        key="btn_new_scenario",
+    ):
         _reset_for_new_scenario()
         st.rerun()
 
@@ -1295,13 +1223,8 @@ def render_result() -> None:
 
     # 5. Vì sao bị phớt lờ
     render_section_title("Lỗi chính khiến người nghe dễ phớt lờ")
-    st.markdown(
-        f"""
-        <div class="ta-insight-highlight">
-            {_bullets_html(feedback.get("why_listener_may_ignore", []))}
-        </div>
-        """,
-        unsafe_allow_html=True,
+    render_html(
+        f'<div class="ta-insight-highlight">{_bullets_html(feedback.get("why_listener_may_ignore", []))}</div>'
     )
 
     # 6. Bản nói lại 30 giây
